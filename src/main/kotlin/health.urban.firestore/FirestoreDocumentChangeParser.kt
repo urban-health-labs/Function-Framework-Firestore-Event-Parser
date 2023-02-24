@@ -1,24 +1,24 @@
 package health.urban.firestore
 
-import com.google.gson.Gson
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
+import ai.rever.meghsamaaroh.helper.deserializers.DocumentReferenceDeserializer
+import com.google.cloud.firestore.DocumentReference
+import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 
 data class DocumentChange<T> (var oldValue: T,
                               var value: T)
 
 inline fun <reified T>String.parseDocumentChange(): DocumentChange<T> =
-  Gson().let { gson ->
-    gson.fromJson<JsonObject>(this)
-      .let { jsonObject ->
-        DocumentChange(
-          gson.fromJson<T>(jsonObject.get("oldValue").parseJsonObject),
-          gson.fromJson<T>(jsonObject.get("value").parseJsonObject)
-        )
-      }
-  }
+  GsonBuilder().registerTypeAdapter(DocumentReference::class.java, DocumentReferenceDeserializer()).create()
+    .let { gson ->
+      gson.fromJson<JsonObject>(this)
+        .let { jsonObject ->
+          DocumentChange(
+            gson.fromJson<T>(jsonObject.get("oldValue").parseJsonObject),
+            gson.fromJson<T>(jsonObject.get("value").parseJsonObject)
+          )
+        }
+    }
 
 val JsonElement.parseJsonObject: JsonObject get() = JsonObject().also { jsonObject ->
   asJsonObject.get("fields")?.asJsonObject?.also { fieldsObject ->

@@ -15,6 +15,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("com.google.code.gson:gson:2.10")
+    implementation("com.google.firebase:firebase-admin:7.1.0")
 }
 
 tasks.test {
